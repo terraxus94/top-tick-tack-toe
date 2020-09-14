@@ -5,10 +5,8 @@ const game = (function () {
     let playerTwo = [];
     let endGameCard = document.querySelector('.end-game-card');
     let title = document.querySelector('.title');
-    let startButton = document.querySelector('.start');
     let formSection = document.querySelector('.form');
     let gameSection = document.querySelector('.game');
-
     let currentPlayerField = document.querySelector('.current-player');
     let winCombinations = [
         [0, 1, 2],
@@ -22,7 +20,6 @@ const game = (function () {
     ];
 
     function gameLogic(element, index) {
-
         updateBoardState(index, playerSwitcher())
         populateCells(element, playerSwitcher());
         updateCurrentPlayer(playerSwitcher());
@@ -57,7 +54,9 @@ const game = (function () {
     };
 
     function updateBoardState(i, symbol) {
-        boardState[i] = symbol;
+        if (boardState[i] == '') {
+            boardState[i] = symbol;
+        }
     };
 
     function checkWinner() {
@@ -89,7 +88,7 @@ const game = (function () {
         }
 
         return tie;
-    }
+    };
 
     function updateCurrentPlayer(symbol) {
         if (playerOne.playerSymbol == symbol) {
@@ -97,7 +96,7 @@ const game = (function () {
         } else {
             currentPlayerField.textContent = playerTwo.playerName || 'Player Two';
         };
-    }
+    };
 
     function startGame() {
         const randomNumber = Math.floor(Math.random() * (1 - 0 + 1)) + 0; // random between 0 and 1
@@ -146,26 +145,17 @@ const game = (function () {
         document.querySelector(`#playerOneName`).value = '';
         document.querySelector(`#playerTwoName`).value = '';
         formSection.classList.toggle('hidden');
-
     }
 
     return {
-        renderState: renderState,
-        populateCells: populateCells,
-        checkWinner: checkWinner,
-        updateBoardState: updateBoardState,
-        checkTie: checkTie,
-        playerSwitcher: playerSwitcher,
-        gameLogic: gameLogic,
-        startGame: startGame,
-        clear: clear,
-        restart: restart,
-        endGameCard: endGameCard,
-        title: title
+        gameLogic,
+        startGame,
+        clear,
+        restart,
+        endGameCard,
+        title
     };
 })();
-
-
 
 const interactionHandler = (function () {
     // cells interaction
@@ -211,3 +201,12 @@ const player = (symbol, order) => {
         playerSymbol
     }
 }
+
+// if cell != empty disable clicks
+// div unutar forme za player/field ljevo desno
+// render state?
+// end card p id
+// associate function to a var, check var state instead of running function every time
+// rely on variables more than dom elements, objekt za sve query selectore, pozivati se na njega a ne svaki put selektr
+// separate game logic and updating UI elements, dio za input, event listenere, ui
+// query selector na outer container, sve ostalo query selector na to container.querySelectore u taj isti objekt sve funkcije staviti koje updateaju UI ili nesto i asociraju state uz varijablu, provjeravati varijable
