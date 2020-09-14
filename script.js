@@ -1,10 +1,15 @@
 const game = (function () {
     let boardState = ['', '', '', '', '', '', '', '', ''];
+    let cells = document.querySelectorAll('.cell');
+    let playerOne = [];
+    let playerTwo = [];
+    let endGameCard = document.querySelector('.end-game-card');
+    let title = document.querySelector('.title');
     let startButton = document.querySelector('.start');
     let formSection = document.querySelector('.form');
     let gameSection = document.querySelector('.game');
-    let clearButton = document.querySelector('.clear');
-    let restartButton = document.querySelector('.restart');
+
+    let currentPlayerField = document.querySelector('.current-player');
     let winCombinations = [
         [0, 1, 2],
         [3, 4, 5],
@@ -16,8 +21,26 @@ const game = (function () {
         [2, 4, 6]
     ];
 
-    function gameLogic(element, index, symbol) {
+    function gameLogic(element, index) {
 
+        updateBoardState(index, playerSwitcher())
+        populateCells(element, playerSwitcher());
+        updateCurrentPlayer(playerSwitcher());
+
+        if (checkWinner().winner || checkTie()) {
+            let endGameParagraph = document.querySelector('.end-game-card>p');
+            let winner = playerOne.playerSymbol == checkWinner().winningSymbol ? playerOne.playerName : playerTwo.playerName;
+
+            title.classList.toggle('hidden');
+            endGameCard.classList.toggle('hidden');
+            gameSection.classList.toggle('hidden');
+
+            if (checkWinner().winner) {
+                endGameParagraph.textContent = `Congratulations ${winner}! You are the winner!`;
+            } else {
+                endGameParagraph.textContent = `No luck today, it's a tie!`
+            }
+        }
     }
 
     function renderState(el) {
@@ -39,47 +62,90 @@ const game = (function () {
 
     function checkWinner() {
         let winner = false;
+        let winningSymbol;
         for (let i = 0; i < winCombinations.length; i++) {
-            if ((this.boardState[winCombinations[i][0]] == this.boardState[winCombinations[i][1]]) && (this.boardState[winCombinations[i][0]] == this.boardState[winCombinations[i][2]]) && (this.boardState[winCombinations[i][0]] != '')) {
+            if ((boardState[winCombinations[i][0]] == boardState[winCombinations[i][1]]) && (boardState[winCombinations[i][0]] == boardState[winCombinations[i][2]]) && (boardState[winCombinations[i][0]] != '')) {
                 winner = true;
+                winningSymbol = boardState[winCombinations[i][0]];
             };
         };
-        return winner;
+
+        return {
+            winner,
+            winningSymbol
+        };
     };
 
     function checkTie() {
         let tie = false;
         let isTheBoardFull = true;
-        this.boardState.forEach(el => {
+        boardState.forEach(el => {
             if (el == '') {
                 isTheBoardFull = false
             }
         })
-        if (isTheBoardFull && !checkWinner.winner) {
+        if (isTheBoardFull && !checkWinner().winner) {
             tie = true;
         }
+
         return tie;
+    }
+
+    function updateCurrentPlayer(symbol) {
+        if (playerOne.playerSymbol == symbol) {
+            currentPlayerField.textContent = playerOne.playerName || 'Player One';
+        } else {
+            currentPlayerField.textContent = playerTwo.playerName || 'Player Two';
+        };
     }
 
     function startGame() {
         const randomNumber = Math.floor(Math.random() * (1 - 0 + 1)) + 0; // random between 0 and 1
         const symbolOne = randomNumber ? 'X' : 'O';
         const symbolTwo = symbolOne == 'X' ? 'O' : 'X';
-        const playerOne = player(symbolOne, 'One');
-        const playerTwo = player(symbolTwo, 'Two');
-
-        console.log({ // remove this 
-            playerOne,
-            playerTwo
-        });
-        return {
-            playerOne,
-            playerTwo
-        }
-
+        playerOne = player(symbolOne, 'One');
+        playerTwo = player(symbolTwo, 'Two');
+        updateCurrentPlayer(playerSwitcher())
     };
 
     function playerSwitcher() {
+        let xCounter = 0;
+        let oCounter = 0;
+        cells.forEach(el => {
+            if (el.textContent == 'X') {
+                xCounter++
+            };
+            if (el.textContent == 'O') {
+                oCounter++
+            };
+        });
+
+        if ((xCounter - oCounter) <= 0) {
+            return 'X';
+        } else {
+            return 'O';
+        }
+    }
+
+    function clear() {
+        cells.forEach(e => {
+            e.textContent = '';
+        })
+        playerOne.playerSymbol = playerOne.playerSymbol == 'X' ? 'O' : 'X';
+        playerTwo.playerSymbol = playerTwo.playerSymbol == 'X' ? 'O' : 'X';
+        updateCurrentPlayer(playerSwitcher())
+    }
+
+    function restart() {
+        playerOne = [];
+        playerTwo = [];
+        boardState = ['', '', '', '', '', '', '', '', ''];
+        cells.forEach(e => {
+            e.textContent = '';
+        })
+        document.querySelector(`#playerOneName`).value = '';
+        document.querySelector(`#playerTwoName`).value = '';
+        formSection.classList.toggle('hidden');
 
     }
 
@@ -92,7 +158,10 @@ const game = (function () {
         playerSwitcher: playerSwitcher,
         gameLogic: gameLogic,
         startGame: startGame,
-        boardState //for debugging purposes, remove afterwards
+        clear: clear,
+        restart: restart,
+        endGameCard: endGameCard,
+        title: title
     };
 })();
 
@@ -101,23 +170,12 @@ const game = (function () {
 const interactionHandler = (function () {
     // cells interaction
     let cells = document.querySelectorAll('.cell');
-    let eventObject;
-    let cellIndex;
     cells.forEach((el, i) => {
         el.addEventListener('click', e => {
-            eventObject = e.target;
-            cellIndex = i;
-            game.populateCells(eventObject, 'X');
-            game.updateBoardState(cellIndex, 'X')
-            game.checkWinner();
-            game.checkTie();
-            // game.gameLogic();
-            return {
-                eventObject,
-                cellIndex
-            };
+            game.gameLogic(e.target, i);
         });
     });
+
     // starting the game
     let startButton = document.querySelector('.start');
     let formSection = document.querySelector('.form');
@@ -128,15 +186,22 @@ const interactionHandler = (function () {
         game.startGame();
     })
 
+    // clear
+    let clearButton = document.querySelector('.clear');
+    clearButton.addEventListener('click', game.clear);
+
+    // restart
+    let restartButton = document.querySelector('.restart');
+    restartButton.addEventListener('click', game.restart);
+
+    // end game restart
+    let endCardCloseButton = document.querySelector('.end-game-close');
+    endCardCloseButton.addEventListener('click', () => {
+        game.endGameCard.classList.toggle('hidden');
+        game.title.classList.toggle('hidden');
+        game.restart()
+    })
 })();
-
-// first screen, player names or AI
-// generate player objects with names, symbols
-// player one gets random X or O, player 2 gets opposite
-// X always plays first
-// display player one / player two with highlight of whose turn it is
-// upon winning pop up congrats player X, you won or it's a tie
-
 
 const player = (symbol, order) => {
     const playerName = document.querySelector(`#player${order}Name`).value || `Player ${order}`;

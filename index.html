@@ -25,7 +25,11 @@
             </form>
             <button class="start">start</button>
         </div>
-        <div class="game">
+        <div class="game hidden">
+            <div class="players">
+                <p>currently playing:</p>
+                <p class="current-player"></p>
+            </div>
             <div class="grid">
                 <div class="cell type-one"></div>
                 <div class="cell type-one"></div>
@@ -41,6 +45,10 @@
                 <button class="clear">clear</button>
                 <button class="restart">restart</button>
             </div>
+        </div>
+        <div class="end-game-card hidden">
+            <p></p>
+            <span class="end-game-close">X</span>
         </div>
     </div>
 </body>
