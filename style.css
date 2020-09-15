@@ -117,11 +117,18 @@ form {
     border: 1px solid var(--gray);
     border-radius: 50px 0 50px 0;
     padding: 80px 70px;
-    position: relative;
+    position: absolute;
+    top: 110px;
+    left: 300px;
+    background-color: rgb(227 255 248);
 }
 
 .end-game-close {
     position: absolute;
     top: -20px;
     right: -13px;
+}
+
+.blur {
+    filter: blur(2px);
 }

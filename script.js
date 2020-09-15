@@ -28,15 +28,21 @@ const game = (function () {
             let endGameParagraph = document.querySelector('.end-game-card>p');
             let winner = playerOne.playerSymbol == checkWinner().winningSymbol ? playerOne.playerName : playerTwo.playerName;
 
-            title.classList.toggle('hidden');
+            title.classList.toggle('blur');
             endGameCard.classList.toggle('hidden');
-            gameSection.classList.toggle('hidden');
+            gameSection.classList.toggle('blur');
 
             if (checkWinner().winner) {
                 endGameParagraph.textContent = `Congratulations ${winner}! You are the winner!`;
             } else {
                 endGameParagraph.textContent = `No luck today, it's a tie!`
             }
+
+            let restartButton = document.querySelector('.restart');
+            restartButton.removeEventListener('click', game.restart);
+
+            let clearButton = document.querySelector('.clear');
+            clearButton.removeEventListener('click', game.clear);
         }
     }
 
@@ -145,6 +151,8 @@ const game = (function () {
         document.querySelector(`#playerOneName`).value = '';
         document.querySelector(`#playerTwoName`).value = '';
         formSection.classList.toggle('hidden');
+        gameSection.classList.toggle('hidden');
+
     }
 
     return {
@@ -161,7 +169,7 @@ const interactionHandler = (function () {
     // cells interaction
     let cells = document.querySelectorAll('.cell');
     cells.forEach((el, i) => {
-        el.addEventListener('click', e => {
+        el.addEventListener('click', (e) => {
             game.gameLogic(e.target, i);
         });
     });
@@ -188,7 +196,8 @@ const interactionHandler = (function () {
     let endCardCloseButton = document.querySelector('.end-game-close');
     endCardCloseButton.addEventListener('click', () => {
         game.endGameCard.classList.toggle('hidden');
-        game.title.classList.toggle('hidden');
+        game.title.classList.toggle('blur');
+        gameSection.classList.toggle('blur');
         game.restart()
     })
 })();
