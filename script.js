@@ -169,7 +169,7 @@ const interactionHandler = (function () {
     // cells interaction
     let cells = document.querySelectorAll('.cell');
     cells.forEach((el, i) => {
-        el.addEventListener('click', (e) => {
+        el.addEventListener('click', e => {
             game.gameLogic(e.target, i);
         });
     });
